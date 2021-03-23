@@ -668,15 +668,19 @@
             if (!uri && service) {
                 nwuri = service + ':' + nwuri
             }
-            toast('Playing...')
-            // stop directly, for user feedback
-            mopidy.playback.stop()
-            // hide ios/android keyboard
-            document.activeElement.blur()
-            controls.clearQueue()
-            $('input').blur()
-            mopidy.tracklist.add({'uris': [nwuri]})
-            mopidy.playback.play()
+            if (isServiceUri(nwuri) || isStreamUri(nwuri) || validUri(nwuri)) {
+                toast('Playing...')
+                // stop directly, for user feedback
+                mopidy.playback.stop()
+                // hide ios/android keyboard
+                document.activeElement.blur()
+                controls.clearQueue()
+                $('input').blur()
+                mopidy.tracklist.add({'uris': [nwuri]})
+                mopidy.playback.play()
+            } else {
+                toast('No valid url!')
+            }
             return false
         },
 

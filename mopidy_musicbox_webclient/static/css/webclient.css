@@ -423,9 +423,8 @@ span.hostInfo {
 /************
  *  Popups  *
  ************/
-#modalname a, #modaldetail a {
+#modalalbum a, #modalartist a, #modalname a {
     color: #444;
-    background-color:#F8F8F5;
     text-decoration: none;
 }
 
@@ -588,7 +587,7 @@ a {
     text-overflow: ellipsis;
 }
 
-#infodetail {
+#infoartist {
     overflow: hidden;
     font-size: 11px;
     white-space: nowrap;

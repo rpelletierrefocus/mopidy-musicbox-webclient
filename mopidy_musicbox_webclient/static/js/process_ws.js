@@ -6,13 +6,10 @@
  */
 
 /** ******************************************************
- * process results of a (new) currently playing track and any stream title
+ * process results of a (new) currently playing track
  *********************************************************/
 function processCurrenttrack (data) {
     setSongInfo(data)
-    mopidy.playback.getStreamTitle().then(function (title) {
-        setStreamTitle(title)
-    }, console.error)
 }
 
 /** ******************************************************

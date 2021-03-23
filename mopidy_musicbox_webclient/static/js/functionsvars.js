@@ -23,10 +23,8 @@ var initgui = true
 var popupData = {}  // TODO: Refactor into one shared cache
 var songlength = 0
 
-var artistsHtml = ''
-var artistsText = ''
-var albumHtml = ''
-var albumText = ''
+var artistshtml = ''
+var artiststext = ''
 var songname = ''
 var songdata = {'track': {}, 'tlid': -1}
 
