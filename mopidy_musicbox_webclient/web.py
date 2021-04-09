@@ -1,6 +1,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import json
+
 import logging
 import socket
 import string
@@ -41,10 +42,6 @@ class IndexHandler(tornado.web.RequestHandler):
 
         url = urlparse.urlparse('%s://%s' % (self.request.protocol, self.request.host))
         port = url.port or 80
-        try:
-            ip = socket.getaddrinfo(url.hostname, port)[0][4][0]
-        except Exception:
-            ip = url.hostname
 
         self.__dict = {
             'isMusicBox': json.dumps(webclient.is_music_box()),
@@ -53,7 +50,7 @@ class IndexHandler(tornado.web.RequestHandler):
             'onTrackClick': webclient.get_default_click_action(),
             'programName': program_name,
             'hostname': url.hostname,
-            'serverIP': ip,
+            'serverIP': socket.gethostbyname(url.hostname),
             'serverPort': port
 
         }

@@ -252,7 +252,8 @@ function renderSongLi (previousTrack, track, nextTrack, uri, tlid, target, curre
         tlidParameter = '\',\'' + tlid
         onClick = 'return controls.playQueueTrack(' + tlid + ');'
     } else {  // All other tracklist: Show default action icon. onClick performs default action
-        onClick = 'return controls.playTracks(\'\', mopidy, \'' + track.uri + '\', \'' + uri + '\');'
+		onClick = 'return popupTracks(event, \'' + uri + '\',\'' + track.uri + tlidParameter + '\');'
+        ///onClick = 'return controls.playTracks(\'\', mopidy, \'' + track.uri + '\', \'' + uri + '\');'
     }
 
     html += '<li class="song albumli" id="' + getjQueryID(target, track.uri) + '" tlid="' + tlid + '">'
@@ -303,21 +304,16 @@ function renderSongLiTrackArtists (track) {
 /* Tracklist renderer to insert dividers between albums. */
 function renderSongLiDivider (previousTrack, track, nextTrack, target) {
     var html = ''
-    var imageID
     // Render differently if part of an album.
     if (!hasSameAlbum(previousTrack, track) && hasSameAlbum(track, nextTrack)) {
         // Large divider with album cover.
-        showAlbum = ''
-        if (typeof track.album.uri !== 'undefined') {
-            showAlbum = 'onclick="return library.showAlbum(\'' + track.album.uri + '\', mopidy);"'
-        }
         html +=
-            '<li class="albumdivider"><a href="#" ' + showAlbum + '>' +
+            '<li class="albumdivider"><a href="#" onclick="return library.showAlbum(\'' + track.album.uri + '\', mopidy);">' +
             '<img id="' + getjQueryID(target + '-cover', track.uri) + '" class="artistcover" width="30" height="30"/>' +
             '<h1>' + track.album.name + '</h1><p>' +
             renderSongLiTrackArtists(track) + '</p></a></li>'
-        // The element ID to populate with an album cover.
-        imageID = getjQueryID(target + '-cover', track.uri, true)
+        // Retrieve album covers
+        images.setAlbumImage(track.uri, getjQueryID(target + '-cover', track.uri, true), mopidy, 'small')
     } else if (previousTrack && !hasSameAlbum(previousTrack, track)) {
         // Small divider
         html += '<li class="smalldivider"> &nbsp;</li>'
@@ -326,7 +322,7 @@ function renderSongLiDivider (previousTrack, track, nextTrack, target) {
         target = getjQueryID(target, track.uri, true)
         $(target).before(html)
     }
-    return [html, imageID]
+    return html
 }
 
 function renderSongLiBackButton (results, target, onClick, optional) {
@@ -376,7 +372,6 @@ function resultsToTables (results, target, uri, onClickBack, backIsOptional) {
 
     var track, previousTrack, nextTrack, tlid
     var html = ''
-    var requiredImages = {}
 
     // Break into albums and put in tables
     for (i = 0; i < results.length; i++) {
@@ -391,14 +386,12 @@ function resultsToTables (results, target, uri, onClickBack, backIsOptional) {
                 nextTrack = nextTrack ? nextTrack.track : undefined
             }
             popupData[track.uri] = track
-            var divider = renderSongLiDivider(previousTrack, track, nextTrack, target)
-            html += divider[0] + renderSongLi(previousTrack, track, nextTrack, uri, tlid, target, i, results.length)
-            requiredImages[track.uri] = divider[1]
+            html += renderSongLiDivider(previousTrack, track, nextTrack, target)
+            html += renderSongLi(previousTrack, track, nextTrack, uri, tlid, target, i, results.length)
         }
     }
     $(target).append(html)
     updatePlayIcons(songdata.track.uri, songdata.tlid, controls.getIconForAction())
-    images.setImages(requiredImages, mopidy, 'small')
 }
 
 function getPlaylistTracks (uri) {
@@ -406,8 +399,8 @@ function getPlaylistTracks (uri) {
         return Mopidy.when(playlists[uri].tracks)
     } else {
         showLoading(true)
-        return mopidy.playlists.lookup({'uri': uri}).then(function (playlist) {
-            return processPlaylistItems({'uri': uri, 'playlist': playlist})
+        return mopidy.playlists.getItems({'uri': uri}).then(function (refs) {
+            return processPlaylistItems({'uri': uri, 'items': refs})
         }, console.error)
     }
 }

@@ -77,7 +77,6 @@
      *
      */
     DummyTracklist.prototype.filter = function (criteria) {
-        criteria = criteria.criteria
         if (!criteria || (!criteria.uri && !criteria.tlid)) {
             throw new Error('No URI or tracklist ID provided to filter on.')
         }

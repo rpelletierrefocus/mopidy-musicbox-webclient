@@ -123,7 +123,6 @@ function processBrowseDir (resultArr) {
     if (uris.length > 0) {
         mopidy.library.lookup({'uris': uris}).then(function (resultDict) {
             // Break into albums and put in tables
-            var requiredImages = {}
             var track, previousTrack, nextTrack, uri
             for (i = 0, index = 0; i < resultArr.length; i++) {
                 if (resultArr[i].type === 'track') {
@@ -138,11 +137,10 @@ function processBrowseDir (resultArr) {
                     if (uris.length === 1 || (previousTrack && !hasSameAlbum(previousTrack, track) && !hasSameAlbum(track, nextTrack))) {
                         renderSongLiAlbumInfo(track, BROWSE_TABLE)
                     }
-                    requiredImages[track.uri] = renderSongLiDivider(previousTrack, track, nextTrack, BROWSE_TABLE)[1]
+                    renderSongLiDivider(previousTrack, track, nextTrack, BROWSE_TABLE)
                 }
             }
             showLoading(false)
-            images.setImages(requiredImages, mopidy, 'small')
         }, console.error)
     } else {
         showLoading(false)
@@ -182,36 +180,27 @@ function processGetPlaylists (resultArr) {
  * process results of a returned list of playlist track refs
  *********************************************************/
 function processPlaylistItems (resultDict) {
-    var playlist = resultDict.playlist
-    if (!playlist || playlist === '') {
-        console.log('Playlist', resultDict.uri, 'is invalid')
+    if (resultDict.items.length === 0) {
+        console.log('Playlist', resultDict.uri, 'is empty')
         showLoading(false)
         return
     }
-    var playlistUri = resultDict.uri
-    playlists[playlistUri] = {'uri': playlistUri, 'tracks': []}
-    if (playlistUri.startsWith('m3u')) {
-        console.log('Playlist', playlistUri, 'requires tracks lookup')
-        var trackUris = []
-        for (i = 0; i < playlist.tracks.length; i++) {
-            trackUris.push(playlist.tracks[i].uri)
-        }
-        return mopidy.library.lookup({'uris': trackUris}).then(function (tracks) {
-            for (i = 0; i < trackUris.length; i++) {
-                var track = tracks[trackUris[i]][0] || playlist.tracks[i]  // Fall back to using track Ref if lookup failed.
-                playlists[playlistUri].tracks.push(track)
-            }
-            showLoading(false)
-            return playlists[playlistUri].tracks
-        })
-    } else {
-        for (i = 0; i < playlist.tracks.length; i++) {
-            var track = playlist.tracks[i]
-            playlists[playlistUri].tracks.push(track)
+    var trackUris = []
+    for (i = 0; i < resultDict.items.length; i++) {
+        trackUris.push(resultDict.items[i].uri)
+    }
+    return mopidy.library.lookup({'uris': trackUris}).then(function (tracks) {
+        // Transform from dict to list and cache result
+        var newplaylisturi = resultDict.uri
+        var track
+        playlists[newplaylisturi] = {'uri': newplaylisturi, 'tracks': []}
+        for (i = 0; i < trackUris.length; i++) {
+            track = tracks[trackUris[i]][0] || resultDict.items[i]  // Fall back to using track Ref if lookup failed.
+            playlists[newplaylisturi].tracks.push(track)
         }
         showLoading(false)
-        return playlists[playlistUri].tracks
-    }
+        return playlists[newplaylisturi].tracks
+    })
 }
 
 /** ******************************************************
@@ -222,10 +211,6 @@ function processCurrentPlaylist (resultArr) {
     resultsToTables(currentplaylist, CURRENT_PLAYLIST_TABLE)
     mopidy.playback.getCurrentTlTrack().then(processCurrenttrack, console.error)
     updatePlayIcons(songdata.track.uri, songdata.tlid, controls.getIconForAction())
-    if (resultArr.length === 0) {
-        // Last track in queue was deleted, reset UI.
-        resetSong()
-    }
 }
 
 /** ******************************************************

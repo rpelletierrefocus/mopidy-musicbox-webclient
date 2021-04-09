@@ -124,20 +124,11 @@
 <div data-role="popup" data-transition="none" data-theme="b" id="popupTracks">
     <div data-role="collapsible-set">
         <ul data-role="listview" data-icon="false" id="popupTracksLv">
-            <li data-icon="play">
-                <a href="#" onclick="return controls.playTracks(PLAY_NOW, mopidy);">Play <span class="popupTrackName"></span></a>
-            </li>
-            <li data-icon="playAll" data-iconshadow="false">
-                <a href="#" onclick="return controls.playTracks(PLAY_ALL, mopidy);">Play All</a>
+	    <li data-icon="add">
+                <a href="#" onclick="return controls.playTracks(ADD_THIS_BOTTOM, mopidy);">Play <span class="popupTrackName"> Now</a>
             </li>
             <li data-icon="playNext">
-                <a href="#" onclick="return controls.playTracks(PLAY_NEXT, mopidy);">Play Track Next</a>
-            </li>
-            <li data-icon="add">
-                <a href="#" onclick="return controls.playTracks(ADD_THIS_BOTTOM, mopidy);">Add Track to Bottom of Queue</a>
-            </li>
-            <li data-icon="addAll">
-                <a href="#" onclick="return controls.playTracks(ADD_ALL_BOTTOM, mopidy);">Add All to Bottom of Queue</a>
+                <a href="#" onclick="return controls.playTracks(PLAY_NEXT, mopidy);">Play Next</a>
             </li>
             <li class="popupAlbumLi">
                 <a href="#" onclick="showAlbumPopup('#popupTracks', mopidy)">Show Album <span class="popupAlbumName"></span></a>
@@ -285,22 +276,10 @@
                 <h4>Queue</h4>
             </div>
         </a>
-        <a href="#playlists" onclick="switchContent('playlists' ); return false;">
-            <div class="ui-block-a">
-                <i class="fa fa-star"></i>
-                <h4>Playlists</h4>
-            </div>
-        </a>
         <a href="#browse" onclick="switchContent('browse' ); return false;">
             <div class="ui-block-b">
                 <i class="fa fa-folder"></i>
                 <h4>Browse</h4>
-            </div>
-        </a>
-        <a href="#stream" onclick="switchContent('stream' ); return false;">
-            <div class="ui-block-a">
-                <i class="fa fa-rss"></i>
-                <h4>Streams</h4>
             </div>
         </a>
         <a href="#search" onclick="switchContent('search' ); return false;">
@@ -328,6 +307,21 @@
             </div>
         </a>
 
+    </div>
+    <div id="modalinfo">
+        <img id="albumCoverImg" src="images/default_cover.png" alt="Album cover"/>
+    </div>
+
+    <div class="nowPlaying-artistInfo">
+        <h3 id="modalname"></h3>
+        <p class="artistAlbumLine"><span id="modalartist"></span> - <span id="modalalbum"></span></p>
+    </div>
+
+    <div id="slidercontainer"><!-- slider for track position -->
+        <span id="songelapsed" class="pull-left"></span>
+        <span id="songlength" class="pull-right"></span>
+        <label for="trackslider" disabled="disabled" class="ui-hidden-accessible">Position</label>
+        <input id="trackslider" name="trackslider" data-mini="true" type="range" />
     </div>
 </div>
 <!--/homepane-->
